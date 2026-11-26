@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kit Ora — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0C0A09;
+  --surface:  #1C1917;
+  --surface2: #292524;
+  --surface3: #3C3330;
+  --border:   rgba(255,255,255,0.08);
+  --border-o: rgba(249,115,22,0.2);
+  --accent:   #F97316;
+  --accent2:  #FB923C;
+  --accent3:  #EA580C;
+  --text:     #FAFAF9;
+  --muted:    #A8A29E;
+  --muted2:   #78716C;
+  --danger:   #F87171;
+  --success:  #4ADE80;
+  box-sizing: border-box;
+}
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; display: flex; }
+
+/* LOGIN */
+#login-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+}
+#login-screen.hidden { display: none; }
+.login-bg-glow {
+  position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 500px;
+  background: radial-gradient(ellipse, rgba(249,115,22,0.15) 0%, transparent 65%);
+  pointer-events: none;
+}
+.login-box {
+  width: 100%; max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  position: relative;
+}
+.login-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.8rem;
+  color: var(--accent);
+  text-align: center; margin-bottom: 0.3rem;
+}
+.login-sub { text-align: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 2.25rem; }
+.login-field { margin-bottom: 1rem; }
+.login-field label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; }
+.login-field input {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'Inter', sans-serif;
+  font-size: 0.9rem; padding: 0.75rem 0.95rem; outline: none;
+  transition: border-color 0.2s;
+}
+.login-field input:focus { border-color: rgba(249,115,22,0.5); }
+.login-error { font-size: 0.78rem; color: var(--danger); text-align: center; margin-bottom: 0.9rem; min-height: 1.1em; display: none; }
+.login-error.show { display: block; }
+.login-btn {
+  width: 100%; background: var(--accent); color: #0C0A09;
+  border: none; border-radius: 10px; padding: 0.82rem;
+  font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: background 0.2s, transform 0.1s;
+}
+.login-btn:hover { background: var(--accent2); }
+.login-btn:active { transform: scale(0.98); }
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)}
+}
+.login-shake { animation: shake 0.4s ease; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 234px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 1.4rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.1rem; color: var(--accent);
+}
+.sidebar-label {
+  font-size: 0.63rem; font-weight: 700; letter-spacing: 0.12em;
+  color: var(--muted2); text-transform: uppercase;
+  padding: 1.25rem 1.25rem 0.5rem;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 0.65rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem; color: var(--muted);
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left; font-family: 'Inter', sans-serif;
+  transition: color 0.15s, background 0.15s;
+}
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+.nav-item.active { color: var(--accent); background: rgba(249,115,22,0.08); border-right: 2px solid var(--accent); font-weight: 600; }
+.nav-icon { width: 20px; text-align: center; font-size: 0.95rem; }
+.sidebar-footer { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.6rem; }
+.view-site-btn {
+  display: block; text-align: center;
+  background: rgba(249,115,22,0.1);
+  border: 1px solid rgba(249,115,22,0.3);
+  color: var(--accent);
+  padding: 0.6rem; border-radius: 10px;
+  font-size: 0.8rem; font-weight: 700;
+  text-decoration: none; font-family: 'Syne', sans-serif;
+  transition: background 0.2s;
+}
+.view-site-btn:hover { background: rgba(249,115,22,0.18); }
+.logout-btn {
+  display: block; width: 100%;
+  background: none; border: 1px solid rgba(248,113,113,0.25);
+  color: var(--danger); border-radius: 10px; padding: 0.5rem;
+  font-size: 0.78rem; font-weight: 600;
+  font-family: 'Syne', sans-serif; cursor: pointer;
+  transition: background 0.2s;
+}
+.logout-btn:hover { background: rgba(248,113,113,0.1); }
+@media (max-width: 768px) { .sidebar { display: none; } }
+
+/* MAIN */
+.main { flex: 1; overflow-y: auto; padding: 2rem 2.25rem; min-height: 100vh; }
+@media (max-width: 768px) { .main { padding: 1.25rem; } }
+.page { display: none; }
+.page.active { display: block; }
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.page-title { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+.page-sub { font-size: 0.875rem; color: var(--muted); }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.25rem; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+
+/* FORMS */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+.form-group { margin-bottom: 1rem; }
+.form-group.full { grid-column: 1 / -1; }
+label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; letter-spacing: 0.03em; }
+input[type="text"], input[type="url"], input[type="number"], textarea, select {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'Inter', sans-serif;
+  font-size: 0.875rem; padding: 0.65rem 0.9rem; outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus { border-color: rgba(249,115,22,0.5); }
+textarea { resize: vertical; min-height: 80px; }
+select option { background: var(--surface2); color: var(--text); }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.65rem 1.4rem; border-radius: 10px;
+  font-size: 0.85rem; font-weight: 700;
+  font-family: 'Syne', sans-serif; cursor: pointer; border: none;
+  transition: opacity 0.2s, transform 0.1s; text-decoration: none;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--accent); color: #0C0A09; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+.btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+.btn-danger { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+.btn-danger:hover { background: rgba(248,113,113,0.2); }
+.btn-sm { padding: 0.38rem 0.9rem; font-size: 0.75rem; }
+
+/* STAT CARDS */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+.stat-card-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 0.4rem; }
+.stat-card-label { font-size: 0.72rem; color: var(--muted); }
+
+/* PRODUCT ROWS */
+.product-row {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 12px;
+  margin-bottom: 0.75rem; transition: border-color 0.2s;
+}
+.product-row:hover { border-color: var(--border-o); }
+.product-row-thumb {
+  width: 52px; height: 52px; border-radius: 10px;
+  background: var(--surface3); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 1.5rem; flex-shrink: 0; overflow: hidden;
+}
+.product-row-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.product-row-info { flex: 1; min-width: 0; }
+.product-row-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-row-desc { font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-row-price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--accent); flex-shrink: 0; }
+.product-row-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+/* REVIEW ROWS */
+.review-row {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; position: relative;
+}
+.review-row-stars { color: var(--accent); font-size: 0.8rem; margin-bottom: 0.4rem; }
+.review-row-text { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+.review-row-meta { font-size: 0.75rem; color: var(--muted2); display: flex; justify-content: space-between; }
+.review-row-actions { position: absolute; top: 0.75rem; right: 0.75rem; display: flex; gap: 0.4rem; }
+
+/* CONTACT LINK ROWS */
+.contact-link-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 0.6rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.75rem;
+}
+.contact-link-row input { flex: 1; margin: 0; }
+
+/* UPLOAD ZONE */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 2rem; text-align: center;
+  cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  position: relative; overflow: hidden;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(249,115,22,0.04); }
+.upload-zone input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.upload-label { font-size: 0.85rem; color: var(--muted); pointer-events: none; }
+.upload-preview { max-width: 100%; border-radius: 10px; margin-top: 0.75rem; max-height: 160px; object-fit: contain; display: none; }
+
+/* SECTION DIVIDER */
+.section-divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+  z-index: 500; display: none; align-items: center; justify-content: center; padding: 1.5rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 2rem;
+  width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 6px; }
+.modal-close:hover { color: var(--text); background: var(--surface2); }
+
+/* TOAST */
+#toast {
+  position: fixed; bottom: 2rem; right: 2rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 0.9rem 1.4rem;
+  font-size: 0.875rem; color: var(--text);
+  display: none; align-items: center; gap: 0.5rem;
+  z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#toast.show { display: flex; }
+#toast.success { border-color: rgba(74,222,128,0.4); }
+#toast.error { border-color: rgba(248,113,113,0.4); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-bg-glow"></div>
+  <div class="login-box" id="login-box">
+    <div class="login-logo">Kit Ora</div>
+    <div class="login-sub">Admin Panel — Sign in to continue</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="text" id="login-email" placeholder="admin@example.com" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-error" id="login-error">Incorrect email or password.</div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">Kit Ora Admin</div>
+  <div class="sidebar-label">Menu</div>
+  <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
+  <button class="nav-item" onclick="showPage('products')"><span class="nav-icon">📦</span> Products</button>
+  <button class="nav-item" onclick="showPage('reviews')"><span class="nav-icon">⭐</span> Reviews</button>
+  <button class="nav-item" onclick="showPage('banner')"><span class="nav-icon">🖼️</span> Banner</button>
+  <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon">⚙️</span> Settings</button>
+  <div class="sidebar-footer">
+    <a href="index.html" target="_blank" class="view-site-btn">View Store ↗</a>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Your Kit Ora store overview.</div>
+    </div>
+    <div class="stats-row" id="dash-stats"></div>
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="showPage('products');openAddProduct()">+ Add Product</button>
+        <button class="btn btn-ghost" onclick="showPage('reviews');openAddReview()">+ Add Review</button>
+        <button class="btn btn-ghost" onclick="showPage('banner')">Update Banner</button>
+        <a href="index.html" target="_blank" class="btn btn-ghost">View Store ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="page" id="page-products">
+    <div class="page-header">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div class="page-title">Products</div><div class="page-sub">Manage your digital catalog.</div></div>
+        <button class="btn btn-primary" onclick="openAddProduct()">+ Add Product</button>
+      </div>
+    </div>
+    <div id="products-list"></div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="page" id="page-reviews">
+    <div class="page-header">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div class="page-title">Reviews</div><div class="page-sub">Manage customer feedback.</div></div>
+        <button class="btn btn-primary" onclick="openAddReview()">+ Add Review</button>
+      </div>
+    </div>
+    <div id="reviews-list"></div>
+  </div>
+
+  <!-- BANNER -->
+  <div class="page" id="page-banner">
+    <div class="page-header"><div class="page-title">Store Banner</div><div class="page-sub">Upload a banner shown below the hero.</div></div>
+    <div class="card">
+      <div class="card-title">Banner Image</div>
+      <div class="upload-zone" id="banner-zone">
+        <input type="file" accept="image/*" onchange="handleBannerUpload(event)">
+        <div class="upload-label">
+          <div style="font-size:2rem;margin-bottom:0.5rem;">🖼️</div>
+          <div style="font-weight:600;margin-bottom:0.3rem;">Click or drag to upload</div>
+          <div style="font-size:0.75rem;color:var(--muted2);">PNG, JPG, GIF, WebP — max 4MB</div>
+        </div>
+        <img id="banner-preview" class="upload-preview" src="" alt="">
+      </div>
+      <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+        <button class="btn btn-primary" onclick="saveBanner()">Save Banner</button>
+        <button class="btn btn-danger" onclick="clearBanner()">Remove Banner</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="page-header"><div class="page-title">Settings</div><div class="page-sub">Customize your store and contact info.</div></div>
+    <div class="card">
+      <div class="card-title">Brand</div>
+      <div class="form-row">
+        <div class="form-group"><label>Store Name</label><input type="text" id="s-name" placeholder="Kit Ora"></div>
+        <div class="form-group"><label>Hero Tagline</label><input type="text" id="s-tagline" placeholder="Premium Digital Products"></div>
+        <div class="form-group full"><label>Hero Sub-text</label><input type="text" id="s-sub" placeholder="Your one-stop shop..."></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Contact Section</div>
+      <div class="form-row">
+        <div class="form-group"><label>Contact Name / Handle</label><input type="text" id="s-cname" placeholder="Kit Ora"></div>
+        <div class="form-group"><label>Contact Blurb</label><input type="text" id="s-cblurb" placeholder="Have a question? Reach out."></div>
+      </div>
+      <div class="section-divider"></div>
+      <div style="margin-bottom:0.75rem;font-size:0.85rem;font-weight:600;color:var(--muted);">Contact Links</div>
+      <div id="contact-links-editor"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addContactLink()" style="margin-top:0.5rem;">+ Add Link</button>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+  </div>
+
+</main>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="product-modal-title">Add Product</div>
+      <button class="modal-close" onclick="closeModal('product-modal')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Product Name *</label><input type="text" id="p-name" placeholder="NFT Pack Vol. 1"></div>
+      <div class="form-group"><label>Price (e.g. $9.99)</label><input type="text" id="p-price" placeholder="$9.99"></div>
+      <div class="form-group full"><label>Short Description *</label><textarea id="p-desc" placeholder="A short, clear description..."></textarea></div>
+      <div class="form-group full"><label>Note (shown below description)</label><input type="text" id="p-note" placeholder="Delivery within 24h, check email after purchase"></div>
+      <div class="form-group"><label>Badge (optional)</label><input type="text" id="p-badge" placeholder="New · Hot · Limited"></div>
+      <div class="form-group"><label>Emoji (shown if no image)</label><input type="text" id="p-emoji" placeholder="🎁"></div>
+      <div class="form-group full"><label>Checkout URL (Creem.io or any payment link) *</label><input type="url" id="p-url" placeholder="https://creem.io/checkout/..."></div>
+      <div class="form-group full">
+        <label>Product Image</label>
+        <div class="upload-zone" id="product-img-zone">
+          <input type="file" accept="image/*" onchange="handleProductImg(event)">
+          <div class="upload-label" id="product-img-label">
+            <div style="font-size:1.5rem;margin-bottom:0.3rem;">📸</div>
+            <div style="font-size:0.8rem;">Click or drag to upload image</div>
+          </div>
+          <img id="p-img-preview" class="upload-preview" src="" alt="">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+      <button class="btn btn-ghost" onclick="closeModal('product-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="review-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="review-modal-title">Add Review</div>
+      <button class="modal-close" onclick="closeModal('review-modal')">✕</button>
+    </div>
+    <div class="form-group"><label>Reviewer Name *</label><input type="text" id="r-name" placeholder="Alex M."></div>
+    <div class="form-group"><label>Stars</label>
+      <select id="r-stars">
+        <option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option>
+        <option value="3">★★★☆☆ (3)</option><option value="2">★★☆☆☆ (2)</option><option value="1">★☆☆☆☆ (1)</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Review Text *</label><textarea id="r-text" placeholder="Amazing product, delivered instantly..."></textarea></div>
+    <div class="form-group"><label>Date (optional)</label><input type="text" id="r-date" placeholder="November 2026"></div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+      <button class="btn btn-primary" onclick="saveReview()">Save Review</button>
+      <button class="btn btn-ghost" onclick="closeModal('review-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><span id="toast-icon">✅</span><span id="toast-msg">Saved.</span></div>
+
+<script>
+const STORAGE_KEY = 'kitora_data';
+const AUTH_KEY    = 'kitora_authed';
+const ADMIN_EMAIL = 'yousafco.des.de@gmail.com';
+const ADMIN_PASS  = 'Nothing@_1';
+
+// AUTH
+function checkAuth() { try { return sessionStorage.getItem(AUTH_KEY) === '1'; } catch { return false; } }
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  const box   = document.getElementById('login-box');
+  if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+    try { sessionStorage.setItem(AUTH_KEY, '1'); } catch {}
+    document.getElementById('login-screen').classList.add('hidden');
+    errEl.classList.remove('show');
+    renderDash();
+  } else {
+    errEl.classList.add('show');
+    box.classList.remove('login-shake');
+    void box.offsetWidth;
+    box.classList.add('login-shake');
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+  }
+}
+function doLogout() {
+  try { sessionStorage.removeItem(AUTH_KEY); } catch {}
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').classList.remove('show');
+}
+
+// DATA
+function getData() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : defaultData(); } catch { return defaultData(); } }
+function saveData(d) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); return true; } catch { return false; } }
+function defaultData() {
+  return { brand: { name: 'Kit Ora', tagline: 'Premium Digital Products', sub: 'NFTs, gift codes, and exclusive digital assets — instant delivery, zero friction.' },
+    banner: '', contact: { name: 'Kit Ora', blurb: 'Have a question before you buy? Reach out — fast replies guaranteed.', links: [] }, products: [], reviews: [] };
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+
+// PAGES
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => { if (n.textContent.toLowerCase().includes(id)) n.classList.add('active'); });
+  if (id==='dashboard') renderDash();
+  if (id==='products') renderProducts();
+  if (id==='reviews') renderReviews();
+  if (id==='settings') loadSettings();
+  if (id==='banner') loadBanner();
+}
+
+// DASHBOARD
+function renderDash() {
+  const d = getData();
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-card-num">${d.products.length}</div><div class="stat-card-label">Products</div></div>
+    <div class="stat-card"><div class="stat-card-num">${d.reviews.length}</div><div class="stat-card-label">Reviews</div></div>
+    <div class="stat-card"><div class="stat-card-num">${d.banner?'✓':'—'}</div><div class="stat-card-label">Banner Set</div></div>
+    <div class="stat-card"><div class="stat-card-num">${d.contact.links.length}</div><div class="stat-card-label">Contact Links</div></div>`;
+}
+
+// PRODUCTS
+let editProductIdx = null, productImgBase64 = '';
+function renderProducts() {
+  const d = getData(); const el = document.getElementById('products-list');
+  if (!d.products.length) { el.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted);">No products yet.</div>'; return; }
+  el.innerHTML = d.products.map((p,i) => `
+    <div class="product-row">
+      <div class="product-row-thumb">${p.image?`<img src="${esc(p.image)}" alt="">`:(p.emoji||'🎁')}</div>
+      <div class="product-row-info"><div class="product-row-name">${esc(p.name)}</div><div class="product-row-desc">${esc(p.desc)}</div></div>
+      <div class="product-row-price">${esc(p.price||'')}</div>
+      <div class="product-row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editProduct(${i})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${i})">Delete</button>
+      </div>
+    </div>`).join('');
+}
+function openAddProduct() {
+  editProductIdx = null; productImgBase64 = '';
+  document.getElementById('product-modal-title').textContent = 'Add Product';
+  ['p-name','p-price','p-desc','p-note','p-badge','p-emoji','p-url'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('p-img-preview').style.display = 'none';
+  document.getElementById('p-img-preview').src = '';
+  document.getElementById('product-img-label').style.display = 'block';
+  document.getElementById('product-modal').classList.add('open');
+}
+function editProduct(i) {
+  const d = getData(); const p = d.products[i]; editProductIdx = i; productImgBase64 = p.image||'';
+  document.getElementById('product-modal-title').textContent = 'Edit Product';
+  document.getElementById('p-name').value = p.name||''; document.getElementById('p-price').value = p.price||'';
+  document.getElementById('p-desc').value = p.desc||''; document.getElementById('p-note').value = p.note||'';
+  document.getElementById('p-badge').value = p.badge||''; document.getElementById('p-emoji').value = p.emoji||'';
+  document.getElementById('p-url').value = p.checkoutUrl||'';
+  if (p.image) { document.getElementById('p-img-preview').src = p.image; document.getElementById('p-img-preview').style.display = 'block'; document.getElementById('product-img-label').style.display = 'none'; }
+  else { document.getElementById('p-img-preview').style.display = 'none'; document.getElementById('product-img-label').style.display = 'block'; }
+  document.getElementById('product-modal').classList.add('open');
+}
+function handleProductImg(e) {
+  const file = e.target.files[0]; if (!file) return;
+  if (file.size > 4*1024*1024) { toast('Image must be under 4MB.','error'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => { productImgBase64 = ev.target.result; document.getElementById('p-img-preview').src = ev.target.result; document.getElementById('p-img-preview').style.display = 'block'; document.getElementById('product-img-label').style.display = 'none'; };
+  reader.readAsDataURL(file);
+}
+function saveProduct() {
+  const name = document.getElementById('p-name').value.trim(); const desc = document.getElementById('p-desc').value.trim();
+  if (!name||!desc) { toast('Name and description are required.','error'); return; }
+  const product = { name, desc, price: document.getElementById('p-price').value.trim(), note: document.getElementById('p-note').value.trim(),
+    badge: document.getElementById('p-badge').value.trim(), emoji: document.getElementById('p-emoji').value.trim(),
+    checkoutUrl: document.getElementById('p-url').value.trim(), image: productImgBase64 };
+  const d = getData();
+  if (editProductIdx!==null) d.products[editProductIdx] = product; else d.products.push(product);
+  if (saveData(d)) { closeModal('product-modal'); renderProducts(); renderDash(); toast('Product saved.','success'); }
+  else toast('Save failed — storage may be full.','error');
+}
+function deleteProduct(i) {
+  if (!confirm('Delete this product?')) return;
+  const d = getData(); d.products.splice(i,1); saveData(d); renderProducts(); renderDash(); toast('Product deleted.');
+}
+
+// REVIEWS
+let editReviewIdx = null;
+function renderReviews() {
+  const d = getData(); const el = document.getElementById('reviews-list');
+  if (!d.reviews.length) { el.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted);">No reviews yet.</div>'; return; }
+  el.innerHTML = d.reviews.map((r,i) => `
+    <div class="review-row">
+      <div class="review-row-stars">${'★'.repeat(r.stars||5)}</div>
+      <div class="review-row-text">"${esc(r.text)}"</div>
+      <div class="review-row-meta"><span>${esc(r.name)}</span><span>${esc(r.date||'')}</span></div>
+      <div class="review-row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editReview(${i})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteReview(${i})">Delete</button>
+      </div>
+    </div>`).join('');
+}
+function openAddReview() {
+  editReviewIdx = null;
+  document.getElementById('review-modal-title').textContent = 'Add Review';
+  ['r-name','r-text','r-date'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('r-stars').value = '5';
+  document.getElementById('review-modal').classList.add('open');
+}
+function editReview(i) {
+  const d = getData(); const r = d.reviews[i]; editReviewIdx = i;
+  document.getElementById('review-modal-title').textContent = 'Edit Review';
+  document.getElementById('r-name').value = r.name||''; document.getElementById('r-stars').value = r.stars||5;
+  document.getElementById('r-text').value = r.text||''; document.getElementById('r-date').value = r.date||'';
+  document.getElementById('review-modal').classList.add('open');
+}
+function saveReview() {
+  const name = document.getElementById('r-name').value.trim(); const text = document.getElementById('r-text').value.trim();
+  if (!name||!text) { toast('Name and review text required.','error'); return; }
+  const review = { name, stars: parseInt(document.getElementById('r-stars').value), text, date: document.getElementById('r-date').value.trim() };
+  const d = getData();
+  if (editReviewIdx!==null) d.reviews[editReviewIdx] = review; else d.reviews.push(review);
+  if (saveData(d)) { closeModal('review-modal'); renderReviews(); renderDash(); toast('Review saved.','success'); }
+  else toast('Save failed.','error');
+}
+function deleteReview(i) {
+  if (!confirm('Delete this review?')) return;
+  const d = getData(); d.reviews.splice(i,1); saveData(d); renderReviews(); renderDash(); toast('Review deleted.');
+}
+
+// BANNER
+let bannerBase64 = '';
+function loadBanner() {
+  const d = getData();
+  if (d.banner) { bannerBase64 = d.banner; document.getElementById('banner-preview').src = d.banner; document.getElementById('banner-preview').style.display = 'block'; }
+}
+function handleBannerUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  if (file.size > 4*1024*1024) { toast('Image must be under 4MB.','error'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => { bannerBase64 = ev.target.result; document.getElementById('banner-preview').src = ev.target.result; document.getElementById('banner-preview').style.display = 'block'; };
+  reader.readAsDataURL(file);
+}
+function saveBanner() { const d = getData(); d.banner = bannerBase64; if (saveData(d)) toast('Banner saved.','success'); else toast('Save failed.','error'); }
+function clearBanner() {
+  bannerBase64 = ''; document.getElementById('banner-preview').src = ''; document.getElementById('banner-preview').style.display = 'none';
+  const d = getData(); d.banner = ''; saveData(d); toast('Banner removed.');
+}
+
+// SETTINGS
+let contactLinksState = [];
+function loadSettings() {
+  const d = getData();
+  document.getElementById('s-name').value = d.brand.name||''; document.getElementById('s-tagline').value = d.brand.tagline||'';
+  document.getElementById('s-sub').value = d.brand.sub||''; document.getElementById('s-cname').value = d.contact.name||'';
+  document.getElementById('s-cblurb').value = d.contact.blurb||'';
+  contactLinksState = JSON.parse(JSON.stringify(d.contact.links||[])); renderContactLinks();
+}
+function renderContactLinks() {
+  document.getElementById('contact-links-editor').innerHTML = contactLinksState.map((l,i) => `
+    <div class="contact-link-row">
+      <input type="text" placeholder="Icon" value="${esc(l.icon||'')}" oninput="contactLinksState[${i}].icon=this.value" style="max-width:70px;">
+      <input type="text" placeholder="Label (e.g. Twitter)" value="${esc(l.label||'')}" oninput="contactLinksState[${i}].label=this.value">
+      <input type="url" placeholder="URL" value="${esc(l.url||'')}" oninput="contactLinksState[${i}].url=this.value">
+      <button class="btn btn-danger btn-sm" onclick="removeContactLink(${i})">✕</button>
+    </div>`).join('');
+}
+function addContactLink() { contactLinksState.push({icon:'🔗',label:'',url:''}); renderContactLinks(); }
+function removeContactLink(i) { contactLinksState.splice(i,1); renderContactLinks(); }
+function saveSettings() {
+  const d = getData();
+  d.brand.name = document.getElementById('s-name').value.trim()||'Kit Ora';
+  d.brand.tagline = document.getElementById('s-tagline').value.trim();
+  d.brand.sub = document.getElementById('s-sub').value.trim();
+  d.contact.name = document.getElementById('s-cname').value.trim();
+  d.contact.blurb = document.getElementById('s-cblurb').value.trim();
+  d.contact.links = contactLinksState.filter(l => l.label||l.url);
+  if (saveData(d)) toast('Settings saved.','success'); else toast('Save failed.','error');
+}
+
+// MODALS
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => { o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); }); });
+
+// TOAST
+let toastTimer;
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-icon').textContent = type==='error'?'❌':'✅';
+  el.className = 'show ' + type; clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 2800);
+}
+
+// INIT
+if (checkAuth()) { document.getElementById('login-screen').classList.add('hidden'); renderDash(); }
+</script>
+</body>
+</html>
